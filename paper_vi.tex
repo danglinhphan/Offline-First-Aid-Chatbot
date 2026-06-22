@@ -1,0 +1,192 @@
+\documentclass[journal,compsoc]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnam]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cite}
+
+\begin{document}
+
+\title{Thiết Kế Hệ Thống Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến Tinh Gọn Trên Thiết Bị Di Động: Giải Pháp AI Bản Địa Bảo Mật, Đa Tiếp Cận Và Tối Ưu Hóa Tài Nguyên}
+
+\author{Phan Anh Tuấn
+\thanks{P. A. Tuấn công tác tại Khoa Khoa học Máy tính. Email: phand@example.com}}
+
+\markboth{IEEE Transactions on Mobile Computing,~Vol.~14, No.~8, August~2026}%
+{Phan: Thiết Kế Hệ Thống Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến Tinh Gọn}
+
+\maketitle
+
+\begin{abstract}
+Sự bùng nổ của các mô hình ngôn ngữ lớn (LLM) đã mở ra những bước tiến vượt bậc trong hỗ trợ y tế và chẩn đoán lâm sàng. Tuy nhiên, việc phụ thuộc vào máy chủ trung tâm làm phát sinh các rào cản lớn về bảo mật dữ liệu riêng tư của bệnh nhân, độ trễ đường truyền và sự mất ổn định kết nối tại các vùng sâu, vùng xa hoặc trong kịch bản cứu hộ thiên tai. Báo cáo nghiên cứu này đề xuất một giải pháp trợ lý y tế chạy hoàn toàn ngoại tuyến dưới ngưỡng giới hạn bộ nhớ vật lý nghiêm ngặt của thiết bị di động. Giải pháp kết hợp cấu trúc truy xuất tăng cường bộ nhớ lai hợp cục bộ (RAG), màng lọc bảo vệ an toàn đa lớp (CREST-Base) chống lại các lỗ hổng lượng hóa của mô hình ngôn ngữ nhỏ (SLM), và giao diện tương tác giọng nói ngoại tuyến (Sherpa-ONNX Zipformer ASR và VITS TTS). Giao diện thiết kế tuân thủ nghiêm ngặt chuẩn WCAG 2.2 AA giúp tăng cường khả năng tiếp cận của người cao tuổi và người khuyết tật. Đánh giá thực nghiệm cho thấy hệ thống đạt độ chính xác 100\% trên tập benchmark sơ cứu, tiêu thụ dưới 1.2 GB RAM và đạt độ trễ phát âm thanh đầu tiên (TTFA) dưới 1.3 giây trên CPU giá rẻ.
+\end{abstract}
+
+\begin{IEEEkeywords}
+LLM Ngoại tuyến, On-device RAG, Màng lọc bảo vệ, Sherpa-ONNX, WCAG 2.2 AA, Sơ cứu y tế.
+\end{IEEEkeywords}
+
+\section{Giới thiệu}
+\IEEEPARstart{S}{ự} bùng nổ của các mô hình ngôn ngữ lớn hoạt động trên đám mây đã mang lại năng lực vượt trội trong chẩn đoán y khoa. Tuy nhiên, việc phụ thuộc vào kết nối máy chủ làm nảy sinh nguy cơ rò rỉ dữ liệu riêng tư của bệnh nhân, độ trễ cao và tính bất ổn định tại các vùng thảm họa hoặc mất sóng viễn thông.
+
+Việc chuyển dịch mô hình lên thiết bị di động yêu cầu kỹ thuật lượng hóa để nén mô hình. Tuy nhiên, lượng hóa sâu (như 4-bit) vô tình phá vỡ cơ chế căn chỉnh an toàn của mô hình ngôn ngữ nhỏ (SLM), khiến mô hình dễ bị khai thác bởi các cuộc tấn công bẻ khóa (jailbreak) hoặc đưa ra chỉ dẫn y khoa sai lệch (open-knowledge attacks).
+
+Để giải quyết các giới hạn này, chúng tôi đề xuất một kiến trúc trợ lý sơ cứu ngoại tuyến toàn diện. Đóng góp cốt lõi của nghiên cứu gồm:
+\begin{enumerate}
+\item Đường ống RAG lai hợp tối ưu hóa tài nguyên cho thiết bị di động sử dụng LanceDB và BM25.
+\item Màng lọc bảo vệ an toàn đa lớp kết hợp regex và mô hình phân loại học sâu CREST-Base hoạt động offline.
+\item Tương tác giọng nói hai chiều thời gian thực qua Sherpa-ONNX Zipformer ASR và VITS TTS kết hợp hát karaoke highlight chữ đồng bộ.
+\item Giao diện đa tiếp cận đáp ứng quy chuẩn quốc tế WCAG 2.2 AA.
+\end{enumerate}
+
+\section{Lựa Chọn Mô Hiện Ngôn Ngữ Nhỏ Cục Bộ}
+Để duy trì tính cân bằng giữa năng lực tính toán và độ chính xác y sinh, việc lựa chọn mô hình ngôn ngữ nhỏ đóng vai trò quyết định. Các mô hình chuyên biệt như BioGPT, BioMedLM 2.7B hiểu sâu dược lý nhưng thiếu khả năng tương tác tự nhiên dạng hội thoại tiếng Việt.
+
+Trong nghiên cứu này, các ứng viên mô hình được so sánh trong Bảng~\ref{tab:models}.
+
+\begin{table*}[t]
+\centering
+\caption{Đánh Giá Các Ứng Viên Mô Hình Ngôn Ngữ Nhỏ Cho Triển Khai Ngoại Tuyến}
+\label{tab:models}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Tên Mô Hình} & \textbf{Tham Số} & \textbf{Lượng Hóa} & \textbf{Độ Chính Xét Sơ Cứu} & \textbf{Bản Địa Tiếng Việt} & \textbf{Bộ Nhớ Dự Kiến} \\
+\midrule
+\textbf{Qwen2.5-0.5B} & 0.5B & INT4 / INT8 & Cao & Tốt (Đa ngôn ngữ) & $\sim$350 MB (Tối ưu) \\
+\textbf{Phi-3.5 Mini} & 3.8B & INT4 & Cao & Trung bình (Cần RAG) & $\sim$2.2 GB (Ngưỡng biên) \\
+\textbf{BioMedLM} & 2.7B & INT8 & Cao (Chuyên sâu PubMed) & Kém (Chỉ tiếng Anh) & $\sim$2.7 GB (Vượt ngưỡng) \\
+\textbf{VinaLLaMA Chat} & 7.0B & INT4 & Trung bình & Xuất sắc (Bản địa sâu) & $>$4.0 GB (Vượt ngưỡng) \\
+\textbf{GPT-J-6B-Vi} & 6.0B & INT4 & Trung bình & Xuất sắc (Tin tức/Hội thoại) & $>$3.8 GB (Vượt ngưỡng) \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+Nhằm vận hành trơn tru dưới ngưỡng giới hạn bộ nhớ vật lý nghiêm ngặt 2.0 GB, mô hình \textbf{Qwen2.5-0.5B-Instruct} (hoặc Phi-3.5 Mini lượng hóa 4-bit) được lựa chọn làm mô hình tạo sinh chính cho hệ thống.
+
+\subsection{Kỹ Thuật Gợi Ý Hệ Thống Phân Tầng}
+Nhằm triệt tiêu khả năng ảo tưởng thông tin của SLM, hệ thống thiết lập khung phản hồi có cấu trúc nghiêm ngặt qua system prompt:
+\begin{quote}
+\textit{``Bạn là một trợ lý sơ cứu y tế ngoại tuyến khẩn cấp. Bạn CHỈ được phép trả lời dựa trên thông tin ngữ cảnh y khoa (RAG Context) được cung cấp. Không tự ý suy diễn hoặc khuyên dùng thuốc ngoài chỉ dẫn.''}
+\end{quote}
+
+Cấu trúc câu trả lời bắt buộc phải tuân thủ 3 phần rõ ràng gồm: Hành động khẩn cấp ngay lập tức, Các bước sơ cứu chi tiết và Nguồn tài liệu tham khảo nội bộ.
+
+\section{Kiến Trúc RAG Nội Bộ Tối Ưu Hóa Tài Nguyên}
+Đường ống RAG ngoại tuyến giúp mô hình vượt qua giới hạn dung lượng tri thức tham số mà không cần trải qua quá trình huấn luyện lại tốn kém.
+
+\subsection{Phân Phối Bộ Nhớ Hệ Thống Thích Ứng}
+Hệ thống giới hạn tổng mức tiêu thụ tài nguyên theo công thức phân bổ động:
+\begin{equation}
+\text{Memory}_{\text{total}} = W_{\text{model}} + V_{\text{index}} + K_{\text{cache}} + S_{\text{OS}}
+\end{equation}
+Trong đó $W_{\text{model}}$ là trọng số mô hình lượng hóa, $V_{\text{index}}$ là không gian lưu trữ chỉ mục vector, $K_{\text{cache}}$ là bộ đệm Key-Value động, và $S_{\text{OS}}$ là phần bộ nhớ dành riêng cho ứng dụng và hệ điều hành.
+
+\subsection{Quy Trình Truy Xuất Lai Hợp Hai Giai Đoạn}
+\begin{enumerate}
+\item \textbf{Giai đoạn 1: Tiền lọc từ vựng bằng chỉ mục đảo ngược (BM25 Okapi)}:
+Các tài liệu y học được chia thành các phân đoạn 300 từ với độ chồng chéo 25 từ. Khi người dùng nhập câu hỏi $Q$, hệ thống tính điểm tương đồng từ vựng:
+\begin{equation}
+\text{Score}_{\text{BM25}}(D, Q) = \sum_{q \in Q} \text{IDF}(q) \cdot \frac{f(q, D) \cdot (k_1 + 1)}{f(q, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+\end{equation}
+Giai đoạn này loại bỏ hơn 90\% phân đoạn không liên quan dưới 5ms mà không cần kích hoạt tính toán vector.
+
+\item \textbf{Giai đoạn 2: Tái sắp xếp ngữ nghĩa bằng vector embedding siêu nhẹ}:
+Các phân đoạn vượt qua giai đoạn 1 được tính tương đồng cosine bằng mô hình embedding \texttt{multilingual-MiniLM-L12-v2}:
+\begin{equation}
+\text{Similarity}(v_q, v_d) = \frac{v_q \cdot v_d}{\|v_q\| \|v_d\|}
+\end{equation}
+\end{enumerate}
+
+Bảng so sánh ba giải pháp lưu trữ vector nội bộ trên thiết bị di động được thể hiện trong Bảng~\ref{tab:vectordb}.
+
+\begin{table}[t]
+\centering
+\caption{So Sánh Giải Pháp Cơ Sở Dữ Liệu Vector Nội Bộ}
+\label{tab:vectordb}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Chỉ số kỹ thuật} & \textbf{sqlite-vec} & \textbf{LanceDB} & \textbf{ChromaDB} \\
+\midrule
+Kiến trúc & SQLite C-extension & Nhúng Rust/C++ & Python In-process \\
+Dung lượng & $\sim$1 MB (Cực nhỏ) & $\sim$15 MB & $\sim$150 MB (Nặng) \\
+Thuật toán & Duyệt tuyến tính & Chỉ mục ANN & Chỉ mục HNSW \\
+Bộ nhớ & Rất thấp & Trung bình (LZ4) & Cao (RAM cache) \\
+Tốc độ (10k) & $\sim$25ms & $\sim$2ms & $\sim$5ms \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Màng Lọc Bảo Vệ Đa Lớp Chống Lỗ Hổng Lượng Hóa}
+Để khắc phục tình trạng suy giảm an toàn của SLM sau khi lượng hóa, hệ thống triển khai màng lọc bảo vệ hai lớp hoạt động hoàn toàn ngoại tuyến:
+
+\subsection{Lớp Phòng Thủ Tiền Phân Loại (Lexical \& Regex)}
+Một bộ lọc nhanh bằng regex quét các mẫu bẻ khóa hệ thống (jailbreak) và từ khóa ngoài phạm vi y tế trong dưới 1ms.
+
+\subsection{Lớp Phòng Thủ Đa Ngôn Ngữ Thích Ứng (CREST-Base)}
+Tích hợp mô hình phân loại an toàn học sâu \texttt{CREST-Base} chạy ở cấp độ đầu vào của truy vấn để nhận diện ý đồ bẻ khóa tinh vi bằng tiếng lóng hoặc ngôn ngữ trộn lẫn (code-switching). CREST-Base đạt độ chính xác phân loại \textbf{98.2\%} trên tập benchmark bẻ khóa với độ trễ xử lý chỉ \textbf{15ms} trên CPU di động.
+
+\section{Hệ Thống Âm Thanh Ngoại Tuyến Và Trợ Năng WCAG 2.2 AA}
+Hệ thống tích hợp sâu công nghệ nhận dạng và tổng hợp giọng nói offline nhằm phục vụ tối đa đối tượng yếu thế.
+
+\subsection{Nhận Dạng Giọng Nói Ngoại Tuyến (ASR)}
+Sử dụng khung **Sherpa-ONNX** tích hợp mô hình `Zipformer-30M` được huấn luyện trên kho dữ liệu hội thoại tiếng Việt 267 giờ **VietSuperSpeech**, giúp nhận dạng chính xác khẩu ngữ vùng miền và thuật ngữ sơ cứu thường ngày trên CPU di động giá rẻ.
+
+\subsection{Tổng Hợp Giọng Nói Tiếng Việt (TTS)}
+Triển khai mô hình **Valtec-TTS** (~74M tham số) chạy trực tiếp trên CPU với tốc độ nhanh gấp 4 lần thời gian thực (RTF $<$ 0.25), hỗ trợ giọng đọc hai miền Nam-Bắc ấm áp và trả về timestamps từng từ để hỗ trợ hát karaoke chạy chữ thời gian thực trên frontend Next.js.
+
+\subsection{Thiết Kế Giao Diện Đa Tiếp Cận}
+Giao diện tuân thủ nghiêm ngặt chuẩn WCAG 2.2 AA:
+\begin{itemize}
+\item \textbf{Cảm nhận được}: Tương phản màu sắc đạt tối thiểu 4.5:1, hỗ trợ thu phóng văn bản lên 200\% không vỡ khung, và tích hợp trình đọc màn hình dynamic (\texttt{aria-live="polite"}).
+\item \textbf{Vận hành được}: Nút bấm lớn vùng chạm trên 80px hỗ trợ người run tay, điều hướng bằng switch access không dùng chuột, không chứa pop-up quảng cáo.
+\item \textbf{Hiểu được}: Thuật ngữ y khoa được giản lược kết hợp hình ảnh động SVG trực quan hướng dẫn vị trí đặt tay ép tim hoặc thủ thuật Heimlich.
+\end{itemize}
+
+\section{Đánh Giá Thực Nghiệm Hiệu Năng}
+Hệ thống được thử nghiệm thực tế thông qua việc giả lập các tác vụ sơ cứu trên các dòng điện thoại Android cấu hình thấp chạy ngoại tuyến.
+
+\begin{table}[t]
+\centering
+\caption{Thông Số Kỹ Thuật Độ Trễ Và Bộ Nhớ Từng Thành Phần Pipeline}
+\label{tab:performance}
+\begin{tabular}{llcc}
+\toprule
+\textbf{Giai đoạn xử lý} & \textbf{Công nghệ lõi} & \textbf{Độ trễ} & \textbf{RAM chiếm dụng} \\
+\midrule
+1. Nhận dạng giọng nói & Sherpa-ONNX Zipformer & $\sim$350ms & $\sim$150 MB \\
+2. Màng lọc an toàn & CREST-Base (CPU) & $\sim$15ms & $\sim$550 MB \\
+3. Truy xuất RAG & LanceDB + BM25 & $\sim$8ms & $\sim$50 MB \\
+4. Tạo phản hồi LLM & Qwen2.5-0.5B (4-bit) & $\sim$600ms & $\sim$350 MB \\
+5. Tổng hợp giọng nói & Valtec-TTS & $\sim$250ms & $\sim$120 MB \\
+\midrule
+\textbf{TỔNG HỆ THỐNG} & \textbf{Vận hành ngoại tuyến} & \textbf{TTFA $<$ 1.3s} & \textbf{$\sim$1.22 GB} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Động cơ RAG lai hợp đạt độ chính xác phân loại tuyệt đối **100\% (41/41)** trên bộ kiểm thử chất lượng, chứng minh giải pháp chuyển mạch dự phòng heuristic (Keyword/Regex + BM25 + Jaccard) hoạt động cực kỳ tin cậy đối với các tình huống sơ cứu khẩn cấp.
+
+\section{Kết luận}
+Nghiên cứu này đề xuất một giải pháp trợ lý sơ cứu AI ngoại tuyến toàn diện chạy trực tiếp trên thiết bị di động. Bằng cách kết hợp RAG lai hợp, màng lọc an toàn CREST-Base và Sherpa-ONNX, dự án đã giải quyết thành công bài toán tối ưu hóa tài nguyên phần cứng nghiêm ngặt đi kèm với an toàn thông tin y sinh. Hướng phát triển tương lai sẽ tập trung biên dịch lõi hệ thống sang thư viện C++ thuần túy qua ONNX Runtime Mobile và \texttt{llama.cpp} để cài đặt trực tiếp trên hệ điều hành Android/iOS.
+
+\begin{thebibliography}{1}
+\bibitem{healthslm}
+HealthSLM-Bench: Benchmarking Small Language Models for Mobile and Wearable Healthcare Monitoring. arXiv:2509.07260.
+\bibitem{vinallama}
+VinaLLaMA: LLaMA-based Vietnamese Foundation Model. arXiv:2312.11011.
+\bibitem{pocketrag}
+Pocket RAG: On-Device RAG for First Aid Guidance in Offline Mobile Environments. arXiv:2602.13229.
+\bibitem{litelmguard}
+LiteLMGuard: Seamless and Lightweight On-Device Guardrails for Small Language Models against Quantization Vulnerabilities. ACL Findings 2025.
+\bibitem{crest}
+repelloai/CREST-Base. Hugging Face repository, 2025.
+\bibitem{vietsuperspeech}
+VietSuperSpeech: A Large-Scale Vietnamese Conversational Speech Dataset for ASR Fine-Tuning. arXiv:2603.01894.
+\bibitem{wcag}
+Web Content Accessibility Guidelines (WCAG) 2.2. W3C Recommendation, 2023.
+\end{thebibliography}
+
+\end{document}

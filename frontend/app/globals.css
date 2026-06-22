@@ -1,0 +1,254 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-geist-sans), 'Geist Fallback';
+  --font-mono: var(--font-geist-mono), 'Geist Mono Fallback';
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  color-scheme: dark;
+  --background: oklch(0.13 0.015 240); /* Soothing midnight slate background */
+  --foreground: oklch(0.93 0.01 240);  /* Soft white text */
+  --card: oklch(0.18 0.02 240);        /* Deep navy-slate cards */
+  --card-foreground: oklch(0.93 0.01 240);
+  --popover: oklch(0.18 0.02 240);
+  --popover-foreground: oklch(0.93 0.01 240);
+  --primary: oklch(0.74 0.11 170);     /* Soft mint-teal highlight */
+  --primary-foreground: oklch(0.13 0.015 240);
+  --secondary: oklch(0.68 0.10 220);   /* Soft slate-blue secondary */
+  --secondary-foreground: oklch(0.13 0.015 240);
+  --muted: oklch(0.24 0.01 240);
+  --muted-foreground: oklch(0.65 0.01 240);
+  --accent: oklch(0.74 0.11 170);
+  --accent-foreground: oklch(0.13 0.015 240);
+  --destructive: oklch(0.65 0.15 25);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.74 0.11 170);
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: radial-gradient(at top left, rgba(20, 80, 80, 0.08), transparent 40%),
+                      radial-gradient(at bottom right, rgba(13, 20, 35, 0.8), transparent 60%);
+    background-attachment: fixed;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* --- TÙY CHỌN TRỢ NĂNG THEO CỠ CHỮ (WCAG 2.2 AA) --- */
+.text-scale-normal {
+  --text-base-size: 1rem;
+  --text-title-size: 1.25rem;
+  --text-huge-size: 1.5rem;
+}
+
+.text-scale-large {
+  --text-base-size: 1.25rem;
+  --text-title-size: 1.5rem;
+  --text-huge-size: 1.75rem;
+}
+
+.text-scale-extra {
+  --text-base-size: 1.5rem;
+  --text-title-size: 1.75rem;
+  --text-huge-size: 2.25rem;
+}
+
+/* Áp dụng cỡ chữ động */
+.accessibility-text {
+  font-size: var(--text-base-size, 1rem);
+  line-height: 1.6;
+}
+
+.accessibility-title {
+  font-size: var(--text-title-size, 1.25rem);
+  font-weight: 700;
+}
+
+.accessibility-huge {
+  font-size: var(--text-huge-size, 1.5rem);
+  font-weight: 800;
+}
+
+/* --- PHONG CÁCH BENTO UI & GLASSMORPHISM --- */
+.bento-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.bento-card {
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-col: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Glassmorphism cho chế độ mặc định */
+.glass-card {
+  background: rgba(20, 28, 48, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card:hover {
+  border-color: rgba(116, 180, 170, 0.25); /* Soothing mint-teal border highlight on hover */
+  box-shadow: 0 10px 30px rgba(116, 180, 170, 0.04);
+}
+
+/* --- CHẾ ĐỘ TƯƠNG PHẢN CAO (HIGH CONTRAST MODE) --- */
+.high-contrast-mode {
+  background: #000000 !important;
+  color: #ffffff !important;
+  
+  .glass-card, .bento-card {
+    background: #000000 !important;
+    border: 3px solid #00ff00 !important; /* Thick neon green borders */
+    color: #ffffff !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .text-gray-400, .text-gray-300, .text-white\/90 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+
+  button {
+    background: #000000 !important;
+    border: 3px solid #ffff00 !important; /* Thick yellow buttons */
+    color: #ffffff !important;
+    font-weight: 800 !important;
+  }
+
+  button:hover, button:focus {
+    background: #ffff00 !important;
+    color: #000000 !important;
+  }
+
+  button[aria-pressed="true"] {
+    background: #00ff00 !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+  }
+
+  .bg-emerald-500, .bg-emerald-600 {
+    background: #00ff00 !important;
+    color: #000000 !important;
+  }
+
+  .bg-slate-700, .bg-slate-800 {
+    background: #000000 !important;
+  }
+}
+
+/* --- HIỆU ỨNG TÔ CHỮ KARAOKE (KARAOKE TEXT HIGHLIGHT) --- */
+.karaoke-text {
+  display: inline;
+  font-weight: 400;
+  transition: color 0.15s ease;
+}
+
+.word-normal {
+  color: inherit;
+}
+
+.word-active {
+  color: #10b981; /* Emerald-500 */
+  font-weight: 800;
+  background-color: rgba(16, 185, 129, 0.2);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.high-contrast-mode .word-active {
+  color: #000000 !important;
+  background-color: #ffff00 !important; /* Yellow highlight in high contrast */
+  text-shadow: none !important;
+}
+
+/* Hiệu ứng sóng âm khi nói (Audio Waveform) */
+.audio-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+}
+
+.audio-bar {
+  width: 3px;
+  height: 100%;
+  background-color: #10b981;
+  border-radius: 3px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.high-contrast-mode .audio-bar {
+  background-color: #00ff00 !important;
+}
+
+.audio-bar:nth-child(2) { animation-delay: 0.15s; }
+.audio-bar:nth-child(3) { animation-delay: 0.3s; }
+.audio-bar:nth-child(4) { animation-delay: 0.45s; }
+.audio-bar:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1.0); }
+}

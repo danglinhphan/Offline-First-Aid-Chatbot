@@ -1,12 +1,17 @@
-# Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến Đa Tiếp Cận (Offline First-Aid Chatbot)
+# Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến / Offline First-Aid Chatbot
 
-🌎 [English Version Here](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/README_EN.md)
-
-Hệ thống trợ lý sơ cứu y tế hoạt động **100% ngoại tuyến (Offline Edge AI)** trên thiết bị di động, tích hợp xử lý ngôn ngữ lớn cục bộ (LLM), truy xuất thông tin y khoa lai hợp (Hybrid RAG), nhận dạng và tổng hợp giọng nói tiếng Việt (ASR/TTS) và giao diện trợ năng tương tác đa phương thức đạt tiêu chuẩn quốc tế **WCAG 2.2 AA**.
+* [Tiếng Việt / Vietnamese Version](#tiếng-việt)
+* [English Version](#english-version)
 
 ---
 
-## 🚀 Tính Năng Nổi Bật
+## Tiếng Việt
+
+# Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến Đa Tiếp Cận (Offline First-Aid Chatbot)
+
+Hệ thống trợ lý sơ cứu y tế hoạt động **100% ngoại tuyến (Offline Edge AI)** trên thiết bị di động, tích hợp xử lý ngôn ngữ lớn cục bộ (LLM), truy xuất thông tin y khoa lai hợp (Hybrid RAG), nhận dạng và tổng hợp giọng nói tiếng Việt (ASR/TTS) và giao diện trợ năng tương tác đa phương thức đạt tiêu chuẩn quốc tế **WCAG 2.2 AA**.
+
+### 🚀 Tính Năng Nổi Bật
 
 - **Màng lọc an toàn 2 lớp (Guardrails)**: Lớp từ khóa kết hợp mô hình học sâu `CREST-Base` chống tấn công bẻ khóa (Jailbreak) và từ chối các yêu cầu ngoài phạm vi y khoa.
 - **Truy xuất thông tin lai hợp (Hybrid RAG)**: Sự kết hợp giữa tìm kiếm từ vựng (BM25 Okapi) và tìm kiếm ngữ nghĩa vector (`multilingual-MiniLM-L12-v2` + `LanceDB`) giúp định vị chính xác cẩm nang y khoa sơ cứu.
@@ -14,9 +19,7 @@ Hệ thống trợ lý sơ cứu y tế hoạt động **100% ngoại tuyến (O
 - **Xử lý âm thanh Offline (Sherpa-ONNX)**: Nhận dạng giọng nói (ASR Zipformer) và tổng hợp giọng nói (TTS VITS) tiếng Việt hoàn toàn ngoại tuyến.
 - **Giao diện đa tiếp cận (Accessibility UI)**: Giao diện đạt chuẩn WCAG 2.2 AA hỗ trợ người cao tuổi/người khuyết tật với các chế độ: phóng to chữ 200%, tương phản màu sắc cao, Karaoke highlight chạy chữ đồng bộ giọng nói, phản hồi rung haptic và vùng nút chạm >80px.
 
----
-
-## 📂 Cấu Trúc Thư Mục Dự Án
+### 📂 Cấu Trúc Thư Mục Dự Án
 
 ```text
 ├── backend/
@@ -45,11 +48,9 @@ Hệ thống trợ lý sơ cứu y tế hoạt động **100% ngoại tuyến (O
 └── Nghiên Cứu Chatbot Y Tế.md # Bài báo nghiên cứu khoa học song ngữ Q1
 ```
 
----
+### 🛠️ Hướng Dẫn Cài Đặt & Khởi Chạy
 
-## 🛠️ Hướng Dẫn Cài Đặt & Khởi Chạy
-
-### Bước 1: Khởi tạo Môi trường Python & Tải mô hình
+#### Bước 1: Khởi tạo Môi trường Python & Tải mô hình
 1. Cài đặt Python (khuyên dùng bản 3.10 - 3.12).
 2. Tạo và kích hoạt môi trường ảo:
    ```powershell
@@ -65,21 +66,21 @@ Hệ thống trợ lý sơ cứu y tế hoạt động **100% ngoại tuyến (O
    python models/download_models.py
    ```
 
-### Bước 2: Khởi chạy Ollama
+#### Bước 2: Khởi chạy Ollama
 1. Tải và cài đặt [Ollama](https://ollama.com/).
 2. Tải mô hình Qwen2.5-0.5B:
    ```powershell
    ollama pull qwen2.5:0.5b
    ```
 
-### Bước 3: Khởi chạy Backend FastAPI
+#### Bước 3: Khởi chạy Backend FastAPI
 ```powershell
 $env:PYTHONIOENCODING="utf-8"
 python backend/app.py
 ```
 Backend sẽ khởi động tại `http://127.0.0.1:8000`. Bạn có thể truy cập tài liệu API Swagger tại `http://127.0.0.1:8000/docs`.
 
-### Bước 4: Khởi chạy Frontend Next.js
+#### Bước 4: Khởi chạy Frontend Next.js
 1. Di chuyển vào thư mục frontend:
    ```powershell
    cd frontend
@@ -94,9 +95,7 @@ Backend sẽ khởi động tại `http://127.0.0.1:8000`. Bạn có thể truy 
    ```
 Frontend sẽ chạy tại `http://localhost:3000`.
 
----
-
-## 🧪 Quy Trình Chạy Kiểm Thử & Đánh Giá
+### 🧪 Quy Trình Chạy Kiểm Thử & Đánh Giá
 
 Nhà phát triển bắt buộc phải chạy các kịch bản kiểm thử sau khi sửa đổi thuật toán tìm kiếm RAG hoặc tri thức y khoa:
 
@@ -109,8 +108,117 @@ Nhà phát triển bắt buộc phải chạy các kịch bản kiểm thử sau
   $env:PYTHONIOENCODING="utf-8"; .\.venv\Scripts\python.exe backend/tests/benchmark_medical_eval.py
   ```
 
+### 📖 Báo Cáo Nghiên Cứu & Bảo Trì
+- **Hướng dẫn bảo trì & Sửa lỗi LanceDB**: Xem chi tiết tại [technical_report.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/technical_report.md).
+- **Bộ Paper Khoa học Q1 song ngữ (Anh-Việt)**: Xem tại [Scientific_Paper_VI.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/Scientific_Paper_VI.md) và [Scientific_Paper_EN.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/Scientific_Paper_EN.md) trong thư mục gốc.
+
 ---
 
-## 📖 Báo Cáo Nghiên Cứu & Bảo Trì
-- **Hướng dẫn bảo trì & Sửa lỗi LanceDB**: Xem chi tiết tại [technical_report.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/technical_report.md) (hoặc bản tiếng Anh [technical_report_EN.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/technical_report_EN.md)).
-- **Bộ Paper Khoa học Q1 song ngữ (Anh-Việt)**: Xem tại [Scientific_Paper_VI.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/Scientific_Paper_VI.md) và [Scientific_Paper_EN.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/Scientific_Paper_EN.md) trong thư mục gốc.
+## English Version
+
+# Offline First-Aid Chatbot (Offline First-Aid Multi-Access Assistant)
+
+An emergency first-aid assistant system that operates **100% offline (Offline Edge AI)** on mobile devices. It integrates a local large language model (LLM), local hybrid retrieval-augmented generation (RAG) for medical manuals, Vietnamese speech-to-speech interaction (ASR/TTS), and a multi-modal accessible user interface conforming to the international **WCAG 2.2 AA** standard.
+
+### 🚀 Key Features
+
+- **Dual-Layer Security Guardrails**: Combines regex-based keyword filters with the deep learning `CREST-Base` classifier to prevent prompt injection (jailbreak) attacks and automatically reject out-of-scope non-medical queries.
+- **Hybrid RAG Engine**: Combines lexical search (BM25 Okapi) with semantic vector search (`multilingual-MiniLM-L12-v2` + `LanceDB`) to locate precise first-aid instructions with low latency.
+- **Local LLM Inference**: Integrated with `Ollama` running the ultra-small `Qwen2.5:0.5B` model. It operates with a low temperature parameter of 0.1 to avoid medical hallucinations. Features a rule-based fallback synthesizer if the local LLM becomes unreachable.
+- **Offline Speech Processing (Sherpa-ONNX)**: Fully offline automatic speech recognition (ASR Zipformer) and speech synthesis (TTS VITS) optimized for the Vietnamese language.
+- **Accessibility UI (WCAG 2.2 AA)**: Designed to assist the elderly and physically impaired, featuring 200% text resizing, high color contrast, karaoke-style text highlighting synchronized with TTS voice, haptic feedback, and touch target buttons >80px.
+
+### 📂 Project Directory Structure
+
+```text
+├── backend/
+│   ├── core/
+│   │   ├── config.py         # Paths, constants, and Windows 8.3 path converter
+│   │   ├── guardrails.py      # Dual-layer safety guardrails (CREST-Base & Regex)
+│   │   ├── llm.py            # Ollama API client and local Fallback Synthesizer
+│   │   ├── rag.py            # Hybrid retrieval search engine (BM25 + LanceDB)
+│   │   └── speech.py         # Offline speech recognition & synthesis (Sherpa-ONNX)
+│   ├── data/
+│   │   └── first_aid_data.json # JSON database containing 7 core first-aid manuals
+│   ├── tests/
+│   │   ├── test_e2e.py       # End-to-end FastAPI API test suite
+│   │   ├── test_quality_metrics.py # Unit tests for RAG retrieval quality metrics
+│   │   └── benchmark_medical_eval.py # RAG retrieval accuracy benchmark on 41 cases
+│   ├── requirements.txt      # Python libraries & dependencies
+│   └── app.py                # FastAPI Web Server entry point
+├── frontend/
+│   ├── app/                  # Next.js pages (App Router) and globals.css
+│   ├── components/           # Accessible UI components (ActionBar, ChatWindow, etc.)
+│   ├── hooks/                # Custom React hooks managing accessibility states
+│   ├── lib/                  # modelService.ts (client-side offline logic & fallbacks)
+│   └── package.json          # npm/pnpm library dependencies
+├── models/
+│   └── download_models.py    # Auto-downloader script for deep learning models from Hugging Face
+└── Scientific_Paper_EN.md    # Q1 Bilingual Scientific Research Paper (English version)
+```
+
+### 🛠️ Installation & Execution Guide
+
+#### Step 1: Initialize Python Environment & Download Models
+1. Install Python (recommended versions: 3.10 - 3.12).
+2. Create and activate a Python virtual environment:
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   ```
+3. Install the required Python packages:
+   ```powershell
+   pip install -r backend/requirements.txt
+   ```
+4. Run the downloader script to fetch the offline AI models:
+   ```powershell
+   python models/download_models.py
+   ```
+
+#### Step 2: Set Up and Start Ollama
+1. Download and install [Ollama](https://ollama.com/).
+2. Pull the Qwen2.5-0.5B instruct model:
+   ```powershell
+   ollama pull qwen2.5:0.5b
+   ```
+
+#### Step 3: Start the Backend FastAPI Server
+```powershell
+$env:PYTHONIOENCODING="utf-8"
+python backend/app.py
+```
+The backend service will run at `http://127.0.0.1:8000`. You can inspect the Swagger API docs at `http://127.0.0.1:8000/docs`.
+
+#### Step 4: Start the Next.js Frontend
+1. Navigate into the frontend directory:
+   ```powershell
+   cd frontend
+   ```
+2. Install npm packages (recommended using `pnpm` or `npm`):
+   ```powershell
+   pnpm install
+   ```
+3. Launch the local development server:
+   ```powershell
+   pnpm dev
+   ```
+The frontend application will run at `http://localhost:3000`.
+
+### 🧪 Testing & Quality Evaluation
+
+Developers must run the following test scripts whenever modifying RAG algorithms or updating medical data:
+
+- **E2E API Testing**:
+  ```powershell
+  $env:PYTHONIOENCODING="utf-8"; .\.venv\Scripts\python.exe backend/tests/test_e2e.py
+  ```
+- **RAG Accuracy Benchmark**:
+  ```powershell
+  $env:PYTHONIOENCODING="utf-8"; .\.venv\Scripts\python.exe backend/tests/benchmark_medical_eval.py
+  ```
+
+### 📖 Research Papers & Maintenance Reports
+- **Maintenance & LanceDB Troubleshooting**: See [technical_report.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/technical_report.md) for details on LanceDB operations.
+- **Bilingual Q1 Scientific Paper**:
+  - English Version: [Scientific_Paper_EN.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/Scientific_Paper_EN.md)
+  - Vietnamese Version: [Scientific_Paper_VI.md](file:///c:/Users/phand/Project/chatbot%20y%20t%E1%BA%BF/Scientific_Paper_VI.md)

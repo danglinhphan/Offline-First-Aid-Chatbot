@@ -12,11 +12,7 @@
 
 \title{Designing a Resource-Efficient and Multi-Accessible Offline Medical Assistant on Mobile Devices: A Secure Local AI and Speech-to-Speech Architecture}
 
-\author{Anh-Tuan Phan
-\thanks{A.-T. Phan is with the Department of Computer Science. Email: phand@example.com}}
-
-\markboth{IEEE Transactions on Mobile Computing,~Vol.~14, No.~8, August~2026}%
-{Phan: Designing a Resource-Efficient and Multi-Accessible Offline Medical Assistant}
+\author{Anonymous Authors}
 
 \maketitle
 
@@ -79,7 +75,7 @@ To supplement the compressed knowledge of the SLM, we implement a two-stage loca
 \subsection{Adaptive System Memory Allocation}
 The system restricts memory consumption according to the dynamic allocation formula:
 \begin{equation}
-\text{Memory}_{\text{total}} = W_{\text{model}} + V_{\text{index}} + K_{\text{cache}} + S_{\text{OS}}
+M_{\text{total}} = W_{\text{model}} + V_{\text{index}} + K_{\text{cache}} + S_{\text{OS}}
 \end{equation}
 Where $W_{\text{model}}$ represents the quantized model weights, $V_{\text{index}}$ is the vector database index footprint, $K_{\text{cache}}$ is the dynamic Key-Value cache, and $S_{\text{OS}}$ is the OS and application runtime overhead.
 
@@ -88,9 +84,10 @@ Where $W_{\text{model}}$ represents the quantized model weights, $V_{\text{index
 \item \textbf{Stage 1: Lexical Pre-filtering (BM25 Okapi)}:
 The medical guides are chunked into 300-token segments with a 25-token overlap. When a query $Q$ is received, the system computes the lexical similarity:
 \begin{equation}
-\text{Score}_{\text{BM25}}(D, Q) = \sum_{q \in Q} \text{IDF}(q) \cdot \frac{f(q, D) \cdot (k_1 + 1)}{f(q, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+\text{Score}_{\text{BM25}}(D, Q) = \sum_{q \in Q} \text{IDF}(q) \cdot \frac{f(q, D) \cdot (k_1 + 1)}{f(q, D) + K_D}
 \end{equation}
-This pre-filtering step discards over 90\% of irrelevant chunks in less than 5ms, avoiding unnecessary CPU vector computation.
+where $K_D = k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)$. This pre-filtering step discards over 90\% of irrelevant chunks in less than 5ms, avoiding unnecessary CPU vector computation.
+
 
 \item \textbf{Stage 2: Semantic Reranking (Vector Search)}:
 The remaining chunks are ranked using a lightweight embedding model (\texttt{multilingual-MiniLM-L12-v2}). The cosine similarity between the query vector $v_q$ and document vector $v_d$ is calculated:

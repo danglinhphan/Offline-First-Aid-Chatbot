@@ -1,6 +1,8 @@
-\documentclass[journal,compsoc]{IEEEtran}
+\documentclass[journal]{IEEEtran}
+\usepackage[T5]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[vietnam]{babel}
+\renewcommand{\rmdefault}{cmr}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -13,11 +15,7 @@
 
 \title{Thiết Kế Hệ Thống Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến Tinh Gọn Trên Thiết Bị Di Động: Giải Pháp AI Bản Địa Bảo Mật, Đa Tiếp Cận Và Tối Ưu Hóa Tài Nguyên}
 
-\author{Phan Anh Tuấn
-\thanks{P. A. Tuấn công tác tại Khoa Khoa học Máy tính. Email: phand@example.com}}
-
-\markboth{IEEE Transactions on Mobile Computing,~Vol.~14, No.~8, August~2026}%
-{Phan: Thiết Kế Hệ Thống Trợ Lý Sơ Cứu Y Tế Ngoại Tuyến Tinh Gọn}
+\author{Anonymous Authors}
 
 \maketitle
 
@@ -32,7 +30,7 @@ LLM Ngoại tuyến, On-device RAG, Màng lọc bảo vệ, Sherpa-ONNX, WCAG 2.
 \section{Giới thiệu}
 \IEEEPARstart{S}{ự} bùng nổ của các mô hình ngôn ngữ lớn hoạt động trên đám mây đã mang lại năng lực vượt trội trong chẩn đoán y khoa. Tuy nhiên, việc phụ thuộc vào kết nối máy chủ làm nảy sinh nguy cơ rò rỉ dữ liệu riêng tư của bệnh nhân, độ trễ cao và tính bất ổn định tại các vùng thảm họa hoặc mất sóng viễn thông.
 
-Việc chuyển dịch mô hình lên thiết bị di động yêu cầu kỹ thuật lượng hóa để nén mô hình. Tuy nhiên, lượng hóa sâu (như 4-bit) vô tình phá vỡ cơ chế căn chỉnh an toàn của mô hình ngôn ngữ nhỏ (SLM), khiến mô hình dễ bị khai thác bởi các cuộc tấn công bẻ khóa (jailbreak) hoặc đưa ra chỉ dẫn y khoa sai lệch (open-knowledge attacks).
+Vien chuyển dịch mô hình lên thiết bị di động yêu cầu kỹ thuật lượng hóa để nén mô hình. Tuy nhiên, lượng hóa sâu (như 4-bit) vô tình phá vỡ cơ chế căn chỉnh an toàn của mô hình ngôn ngữ nhỏ (SLM), khiến mô hình dễ bị khai thác bởi các cuộc tấn công bẻ khóa (jailbreak) hoặc đưa ra chỉ dẫn y khoa sai lệch (open-knowledge attacks).
 
 Để giải quyết các giới hạn này, chúng tôi đề xuất một kiến trúc trợ lý sơ cứu ngoại tuyến toàn diện. Đóng góp cốt lõi của nghiên cứu gồm:
 \begin{enumerate}
@@ -80,7 +78,7 @@ Cấu trúc câu trả lời bắt buộc phải tuân thủ 3 phần rõ ràng 
 \subsection{Phân Phối Bộ Nhớ Hệ Thống Thích Ứng}
 Hệ thống giới hạn tổng mức tiêu thụ tài nguyên theo công thức phân bổ động:
 \begin{equation}
-\text{Memory}_{\text{total}} = W_{\text{model}} + V_{\text{index}} + K_{\text{cache}} + S_{\text{OS}}
+M_{\text{total}} = W_{\text{model}} + V_{\text{index}} + K_{\text{cache}} + S_{\text{OS}}
 \end{equation}
 Trong đó $W_{\text{model}}$ là trọng số mô hình lượng hóa, $V_{\text{index}}$ là không gian lưu trữ chỉ mục vector, $K_{\text{cache}}$ là bộ đệm Key-Value động, và $S_{\text{OS}}$ là phần bộ nhớ dành riêng cho ứng dụng và hệ điều hành.
 
@@ -89,12 +87,13 @@ Trong đó $W_{\text{model}}$ là trọng số mô hình lượng hóa, $V_{\tex
 \item \textbf{Giai đoạn 1: Tiền lọc từ vựng bằng chỉ mục đảo ngược (BM25 Okapi)}:
 Các tài liệu y học được chia thành các phân đoạn 300 từ với độ chồng chéo 25 từ. Khi người dùng nhập câu hỏi $Q$, hệ thống tính điểm tương đồng từ vựng:
 \begin{equation}
-\text{Score}_{\text{BM25}}(D, Q) = \sum_{q \in Q} \text{IDF}(q) \cdot \frac{f(q, D) \cdot (k_1 + 1)}{f(q, D) + k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)}
+\text{Score}_{\text{BM25}}(D, Q) = \sum_{q \in Q} \text{IDF}(q) \cdot \frac{f(q, D) \cdot (k_1 + 1)}{f(q, D) + K_D}
 \end{equation}
-Giai đoạn này loại bỏ hơn 90\% phân đoạn không liên quan dưới 5ms mà không cần kích hoạt tính toán vector.
+trong đó $K_D = k_1 \cdot \left(1 - b + b \cdot \frac{|D|}{\text{avgdl}}\right)$. Giai đoạn này loại bỏ hơn 90\% phân đoạn không liên quan dưới 5ms mà không cần kích hoạt tính toán vector.
+
 
 \item \textbf{Giai đoạn 2: Tái sắp xếp ngữ nghĩa bằng vector embedding siêu nhẹ}:
-Các phân đoạn vượt qua giai đoạn 1 được tính tương đồng cosine bằng mô hình embedding \texttt{multilingual-MiniLM-L12-v2}:
+Các phân đoạn vượt qua giai đoạn 1 được tính tương đồng cosine bằng mô hình embedding \textbf{multilingual-MiniLM-L12-v2}:
 \begin{equation}
 \text{Similarity}(v_q, v_d) = \frac{v_q \cdot v_d}{\|v_q\| \|v_d\|}
 \end{equation}
@@ -126,7 +125,7 @@ Tốc độ (10k) & $\sim$25ms & $\sim$2ms & $\sim$5ms \\
 Một bộ lọc nhanh bằng regex quét các mẫu bẻ khóa hệ thống (jailbreak) và từ khóa ngoài phạm vi y tế trong dưới 1ms.
 
 \subsection{Lớp Phòng Thủ Đa Ngôn Ngữ Thích Ứng (CREST-Base)}
-Tích hợp mô hình phân loại an toàn học sâu \texttt{CREST-Base} chạy ở cấp độ đầu vào của truy vấn để nhận diện ý đồ bẻ khóa tinh vi bằng tiếng lóng hoặc ngôn ngữ trộn lẫn (code-switching). CREST-Base đạt độ chính xác phân loại \textbf{98.2\%} trên tập benchmark bẻ khóa với độ trễ xử lý chỉ \textbf{15ms} trên CPU di động.
+Tích hợp mô hình phân loại an toàn học sâu \textbf{CREST-Base} chạy ở cấp độ đầu vào của truy vấn để nhận diện ý đồ bẻ khóa tinh vi bằng tiếng lóng hoặc ngôn ngữ trộn lẫn (code-switching). CREST-Base đạt độ chính xác phân loại \textbf{98.2\%} trên tập benchmark bẻ khóa với độ trễ xử lý chỉ \textbf{15ms} trên CPU di động.
 
 \section{Hệ Thống Âm Thanh Ngoại Tuyến Và Trợ Năng WCAG 2.2 AA}
 Hệ thống tích hợp sâu công nghệ nhận dạng và tổng hợp giọng nói offline nhằm phục vụ tối đa đối tượng yếu thế.
@@ -140,7 +139,7 @@ Triển khai mô hình **Valtec-TTS** (~74M tham số) chạy trực tiếp trê
 \subsection{Thiết Kế Giao Diện Đa Tiếp Cận}
 Giao diện tuân thủ nghiêm ngặt chuẩn WCAG 2.2 AA:
 \begin{itemize}
-\item \textbf{Cảm nhận được}: Tương phản màu sắc đạt tối thiểu 4.5:1, hỗ trợ thu phóng văn bản lên 200\% không vỡ khung, và tích hợp trình đọc màn hình dynamic (\texttt{aria-live="polite"}).
+\item \textbf{Cảm nhận được}: Tương phản màu sắc đạt tối thiểu 4.5:1, hỗ trợ thu phóng văn bản lên 200\% không vỡ khung, và tích hợp trình đọc màn hình dynamic (\textbf{aria-live="polite"}).
 \item \textbf{Vận hành được}: Nút bấm lớn vùng chạm trên 80px hỗ trợ người run tay, điều hướng bằng switch access không dùng chuột, không chứa pop-up quảng cáo.
 \item \textbf{Hiểu được}: Thuật ngữ y khoa được giản lược kết hợp hình ảnh động SVG trực quan hướng dẫn vị trí đặt tay ép tim hoặc thủ thuật Heimlich.
 \end{itemize}
@@ -170,7 +169,7 @@ Hệ thống được thử nghiệm thực tế thông qua việc giả lập c
 Động cơ RAG lai hợp đạt độ chính xác phân loại tuyệt đối **100\% (41/41)** trên bộ kiểm thử chất lượng, chứng minh giải pháp chuyển mạch dự phòng heuristic (Keyword/Regex + BM25 + Jaccard) hoạt động cực kỳ tin cậy đối với các tình huống sơ cứu khẩn cấp.
 
 \section{Kết luận}
-Nghiên cứu này đề xuất một giải pháp trợ lý sơ cứu AI ngoại tuyến toàn diện chạy trực tiếp trên thiết bị di động. Bằng cách kết hợp RAG lai hợp, màng lọc an toàn CREST-Base và Sherpa-ONNX, dự án đã giải quyết thành công bài toán tối ưu hóa tài nguyên phần cứng nghiêm ngặt đi kèm với an toàn thông tin y sinh. Hướng phát triển tương lai sẽ tập trung biên dịch lõi hệ thống sang thư viện C++ thuần túy qua ONNX Runtime Mobile và \texttt{llama.cpp} để cài đặt trực tiếp trên hệ điều hành Android/iOS.
+Nghiên cứu này đề xuất một giải pháp trợ lý sơ cứu AI ngoại tuyến toàn diện chạy trực tiếp trên thiết bị di động. Bằng cách kết hợp RAG lai hợp, màng lọc an toàn CREST-Base và Sherpa-ONNX, dự án đã giải quyết thành công bài toán tối ưu hóa tài nguyên phần cứng nghiêm ngặt đi kèm với an toàn thông tin y sinh. Hướng phát triển tương lai sẽ tập trung biên dịch lõi hệ thống sang thư viện C++ thuần túy qua ONNX Runtime Mobile và \textbf{llama.cpp} để cài đặt trực tiếp trên hệ điều hành Android/iOS.
 
 \begin{thebibliography}{1}
 \bibitem{healthslm}
